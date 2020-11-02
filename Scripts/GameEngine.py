@@ -16,22 +16,40 @@ class gameState:
 
     # Update the Game Board
     def make_move(self, Move):
-        
+         # check target
+
         self.board[Move.startRow][Move.startColumn] = '--'
         self.board[Move.endRow][Move.endColumn] = Move.piecesMove
 
         # remove target
         if abs(Move.startRow - Move.endRow) == 2 or abs(Move.startColumn - Move.endColumn) == 2:
             self.removeTarget(Move)
-        else:
-            self.redMove = not self.redMove
 
-        if Move.isPawnPromoted():
+        if Move.canPawnPromote():
             Move.promotePawn()
+            self.redMove = not self.redMove
             print("Pawn Promoted.........")
         
         print("Turn : %s"%self.redMove)
         print("(%s, %s) moved to (%s, %s) positions..."%(Move.startRow, Move.startColumn, Move.endRow, Move.endColumn))
+
+
+    def isTargetNear(self, Move):
+        if self.redMove:
+            if Move.startRow + 1 <= 7:
+                if self.board[Move.startRow + 1][Move.startColumn][0] == 'b':
+                    return True
+            if Move.startColumn + 1 <= 7 and Move.startColumn - 1 >= 0:
+                if self.board[Move.startRow][Move.startColumn + 1][0] == 'b' or self.board[Move.startRow][Move.startColumn - 1][0] == 'b':
+                    return True
+        else:
+            if Move.startRow - 1 >= 0:
+                if self.board[Move.startRow - 1][Move.startColumn][0] == 'r':
+                    return True
+            if Move.startColumn + 1 <= 7 and Move.startColumn - 1 >= 0:
+                if self.board[Move.startRow][Move.startColumn + 1][0] == 'r' or self.board[Move.startRow][Move.startColumn - 1][0] == 'r':
+                    return True
+        return False
 
     def removeTarget(self, Move):
         targetRow, targetColumn = (Move.startRow + Move.endRow) // 2, (Move.startColumn + Move.endColumn) // 2     
@@ -42,7 +60,6 @@ class gameState:
             if r + 1 <= 7:
                 if self.board[r + 1][c] == 'bp':
                     moves.append(Move((r, c), (r + 2, c), self.board))
-                    return
 
                 elif self.board[r + 1][c] == '--':
                     moves.append(Move((r, c), (r + 1, c), self.board))
@@ -50,7 +67,6 @@ class gameState:
             if c - 1 >= 0:
                 if self.board[r][c - 1] == 'bp':
                     moves.append(Move((r, c), (r, c - 2), self.board))
-                    return
 
                 elif self.board[r][c - 1] == '--':
                     moves.append(Move((r, c), (r, c - 1), self.board))
@@ -58,34 +74,45 @@ class gameState:
             if c + 1 <= 7:
                 if self.board[r][c + 1] == 'bp':
                     moves.append(Move((r, c), (r, c + 2), self.board))
-                    return
                 elif self.board[r][c + 1] == '--':
                     moves.append(Move((r, c), (r, c + 1), self.board))
         else:
             if r - 1 >= 0:
                 if self.board[r - 1][c] == 'rp':
                     moves.append(Move((r, c), (r - 2, c), self.board))
-                    return
                 elif self.board[r - 1][c] == '--':
                     moves.append(Move((r, c), (r - 1, c), self.board))
 
             if c + 1 <= 7:
                 if self.board[r][c + 1] == 'rp':
                     moves.append(Move((r, c), (r, c + 2), self.board))
-                    return
                 elif self.board[r][c + 1] == '--':
                     moves.append(Move((r, c), (r, c + 1), self.board))
 
             if c - 1 >= 0:
                 if self.board[r][c - 1] == 'rp':
                     moves.append(Move((r, c), (r, c - 2), self.board))
-                    return
                 elif self.board[r][c - 1] == '--':
                     moves.append(Move((r, c), (r, c - 1), self.board))
 
     def king_move(self, r, c, moves):
-        pass
-
+        _directions = ((-1, 0), (0, -1), (1, 0), (0, 1))
+        color = 'rp' if self.redMove else 'bp'
+        for direction in _directions:
+            for i in range(1, 6):
+                endRow  = r + direction[0] * i
+                endColumn = c + direction[1] * i
+                if 0 <= endRow < 8 and 0 <= endColumn < 8:
+                    endPiece = self.board[endRow][endColumn]
+                    if endPiece == '--':
+                        moves.append(Move((r, c), (endRow, endColumn), self.board))
+                    elif endPiece == color:
+                        moves.append(Move((r, c), (endRow - 1, endColumn - 1), self.board))
+                    else:
+                        break
+                else:
+                    break
+          
     def checkPossibleMoves(self):
         moves = []
         for r in range(len(self.board)):
@@ -110,11 +137,11 @@ class Move:
             return self.MoveID == other.MoveID
         return False
 
-    def isPawnPromoted(self):
+    def canPawnPromote(self):
         if (self.piecesMove == 'rp' and self.endRow == 7) or (self.piecesMove == 'bp' and self.endRow == 0):
             return True
 
     def promotePawn(self):
-        self.board[self.endRow][self.endColumn] = 'kn'
+        self.board[self.endRow][self.endColumn] = "rkn" if self.piecesMove[0] == 'r' else "bkn"
 
     

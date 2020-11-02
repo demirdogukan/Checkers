@@ -12,8 +12,7 @@ class Game:
     colors = [py.Color(104, 55, 37), py.Color(200, 158, 106)]
     RED_PIECE = py.transform.scale(py.image.load(f"Assets/red.png"), (SQ_SIZE, SQ_SIZE))
     BLACK_PIECE = py.transform.scale(py.image.load(f"Assets/black.png"), (SQ_SIZE, SQ_SIZE))
-    RED_CROWN = py.transform.scale(py.image.load(f"Assets/crown.png"), (SQ_SIZE, SQ_SIZE))
-    BLACK_CROWN = py.transform.scale(py.image.load(f"Assets/crown.png"), (SQ_SIZE, SQ_SIZE))
+    CROWN = py.transform.scale(py.image.load(f"Assets/crown.png"), (32, 32))
     clock = py.time.Clock()
     board_img = py.transform.scale(py.image.load(f"Assets/board2.jpg"), (512, 512))  
 
@@ -44,11 +43,14 @@ class Game:
                         _move = Move(self.clicks_of_player[0], self.clicks_of_player[1], self.gameState.board)
                         if _move in self.validMoves:
                             self._makeMove(_move)
+                        # check target is near 
+                        if not self.gameState.isTargetNear(_move):
+                            self.gameState.redMove = not self.gameState.redMove
                         self._ClearMoves()
-            
+
             if self.isValidMove:
                 self.validMoves = self.gameState.checkPossibleMoves()
-                self.isMovingValid = False    
+                self.isMovingValid = False
 
             self._Draw()
             self.clock.tick(60)
@@ -83,12 +85,17 @@ class Game:
     def _DrawPiece(self):
         for r in range(self.size):
             for c in range(self.size):
+                # red pawn, black pawn, red king, black king
                 if self.gameState.board[r][c] == "rp":
                     self.WIN.blit(self.RED_PIECE, (c * self.SQ_SIZE, r * self.SQ_SIZE))
-                elif self.gameState.board[r][c] == "bp":
+                if self.gameState.board[r][c] == "bp":
                     self.WIN.blit(self.BLACK_PIECE, (c * self.SQ_SIZE, r * self.SQ_SIZE))
-                elif self.gameState.board[r][c] == 'kn':
-                     self.WIN.blit(self.RED_CROWN, (c * self.SQ_SIZE, r * self.SQ_SIZE))
+                if self.gameState.board[r][c] == 'rkn':
+                     self.WIN.blit(self.RED_PIECE, (c * self.SQ_SIZE, r * self.SQ_SIZE))
+                     self.WIN.blit(self.CROWN, (c * self.SQ_SIZE + 20, r * self.SQ_SIZE + 15))
+                if self.gameState.board[r][c] == 'bkn':
+                     self.WIN.blit(self.BLACK_PIECE, (c * self.SQ_SIZE, r * self.SQ_SIZE))
+                     self.WIN.blit(self.CROWN, (c * self.SQ_SIZE + 20, r * self.SQ_SIZE + 15)) 
 
 if __name__ == "__main__":
     _main = Game()
