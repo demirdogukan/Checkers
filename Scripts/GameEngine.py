@@ -16,7 +16,10 @@ class gameState:
 
     # Update the Game Board
     def make_move(self, Move):
-         # check target
+        if not self.isTargetNear(Move):
+            # target must not be nearby
+            self.redMove = not self.redMove
+            print("Turn : %s"%self.redMove)
 
         self.board[Move.startRow][Move.startColumn] = '--'
         self.board[Move.endRow][Move.endColumn] = Move.piecesMove
@@ -27,47 +30,58 @@ class gameState:
 
         if Move.canPawnPromote():
             Move.promotePawn()
-            self.redMove = not self.redMove
-            print("Pawn Promoted.........")
         
-        print("Turn : %s"%self.redMove)
         print("(%s, %s) moved to (%s, %s) positions..."%(Move.startRow, Move.startColumn, Move.endRow, Move.endColumn))
-
 
     def isTargetNear(self, Move):
         if self.redMove:
-            if Move.startRow + 1 <= 7:
-                if self.board[Move.startRow + 1][Move.startColumn][0] == 'b':
+            if Move.startRow + 1<= 7 and Move.endRow + 1 <= 7:
+                if self.board[Move.startRow + 1][Move.startColumn][0] == 'b' and self.board[Move.endRow + 1][Move.endColumn] != '--':
                     return True
-            if Move.startColumn + 1 <= 7 and Move.startColumn - 1 >= 0:
+            elif Move.startColumn + 1 <= 7 and Move.startColumn - 1 >= 0:
                 if self.board[Move.startRow][Move.startColumn + 1][0] == 'b' or self.board[Move.startRow][Move.startColumn - 1][0] == 'b':
-                    return True
+                        return True
         else:
-            if Move.startRow - 1 >= 0:
-                if self.board[Move.startRow - 1][Move.startColumn][0] == 'r':
+            if Move.startRow - 1 >= 0 and Move.endRow - 1 >= 0:
+                if self.board[Move.startRow - 1][Move.startColumn][0] == 'r' and self.board[Move.endRow - 1][Move.endColumn] != '--':
                     return True
-            if Move.startColumn + 1 <= 7 and Move.startColumn - 1 >= 0:
-                if self.board[Move.startRow][Move.startColumn + 1][0] == 'r' or self.board[Move.startRow][Move.startColumn - 1][0] == 'r':
-                    return True
+            elif Move.startColumn + 1 <= 7 and Move.startColumn - 1 >= 0:
+                if self.board[Move.startRow][Move.startColumn + 1][0] == 'r' and self.board[Move.startRow][Move.startColumn - 1][0] != 'r':
+                        return True
         return False
 
     def removeTarget(self, Move):
         targetRow, targetColumn = (Move.startRow + Move.endRow) // 2, (Move.startColumn + Move.endColumn) // 2     
         self.board[targetRow][targetColumn] = '--'
-        
+
+        """if self.redMove:
+            if Move.endRow + 1<= 7 or ( Move.startColumn - 1 >= 0 or Move.endColumn + 1 <= 7):
+                if self.board[Move.endRow + 1][Move.endColumn][0] == 'b':
+                    self.board[Move.endRow + 1][Move.endColumn] == '--'
+                elif self.board[Move.endRow][Move.endColumn - 1][0] == 'b':
+                    self.board[Move.endRow][Move.endColumn - 1] == '--'
+                elif self.board[Move.endRow][Move.endColumn + 1][0] == 'b':
+                    self.board[Move.endRow][Move.endColumn +1] == '--'
+        else:
+            if 0 <= Move.endRow - 1 or (Move.startColumn - 1 >= 0 or Move.endColumn + 1 <= 7):
+                if self.board[Move.endRow - 1][Move.endColumn][0] == 'r':
+                    self.board[Move.endRow - 1][Move.endColumn] == '--'
+                elif self.board[Move.endRow][Move.endColumn - 1][0] == 'r':
+                    self.board[Move.endRow][Move.endColumn - 1] == '--'
+                elif self.board[Move.endRow][Move.endColumn + 1][0] == 'r':
+                    self.board[Move.endRow][Move.endColumn +1] == '--'"""
+                    
     def pawn_move(self, r, c, moves):
         if self.redMove:
             if r + 1 <= 7:
                 if self.board[r + 1][c] == 'bp':
                     moves.append(Move((r, c), (r + 2, c), self.board))
-
                 elif self.board[r + 1][c] == '--':
                     moves.append(Move((r, c), (r + 1, c), self.board))
                     
             if c - 1 >= 0:
                 if self.board[r][c - 1] == 'bp':
                     moves.append(Move((r, c), (r, c - 2), self.board))
-
                 elif self.board[r][c - 1] == '--':
                     moves.append(Move((r, c), (r, c - 1), self.board))
                 

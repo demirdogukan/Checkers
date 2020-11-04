@@ -43,9 +43,6 @@ class Game:
                         _move = Move(self.clicks_of_player[0], self.clicks_of_player[1], self.gameState.board)
                         if _move in self.validMoves:
                             self._makeMove(_move)
-                        # check target is near 
-                        if not self.gameState.isTargetNear(_move):
-                            self.gameState.redMove = not self.gameState.redMove
                         self._ClearMoves()
 
             if self.isValidMove:
