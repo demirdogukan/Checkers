@@ -3,7 +3,7 @@ from  GameEngine import gameState
 from GameEngine import Move
 
 class Game:
-    # Private Components
+    # Private Components and Values
     width, height = 512, 512
     size = 8
     SQ_SIZE = 512 // size
@@ -43,17 +43,21 @@ class Game:
                         _move = Move(self.clicks_of_player[0], self.clicks_of_player[1], self.gameState.board)
                         if _move in self.validMoves:
                             self._makeMove(_move)
+                        print(self.gameState.redPieceTurn)
                         self._ClearMoves()
 
             if self.isValidMove:
-                self.validMoves = self.gameState.checkPossibleMoves()
-                self.isMovingValid = False
-
+               self._updateValidMoves()
+            # update board simultanesly
             self._Draw()
             self.clock.tick(60)
             py.display.flip()
             
     # Private 
+    def _updateValidMoves(self):
+        self.validMoves = self.gameState.checkPossibleMoves()
+        self.isMovingValid = False
+        
     def _makeMove(self, _move):
         self.isValidMove = True
         self.gameState.make_move(_move)
