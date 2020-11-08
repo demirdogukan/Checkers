@@ -1,4 +1,9 @@
 class gameState:
+    """
+        TO DO->
+        1- implement is target on the way of the king
+        2- update remove target function for king 
+    """
     def __init__(self):
         self.board = [
          ["--", "--", "--", "--", "--", "--", "--", "--"],
@@ -19,11 +24,14 @@ class gameState:
         self.board[Move.startRow][Move.startColumn] = '--'
         self.board[Move.endRow][Move.endColumn] = Move.piecesMove
 
-        if not self.isTargetNear(Move):
-            # target must not be nearby
-            self.redPieceTurn = not self.redPieceTurn
-            
-        # remove target
+        if Move.piecesMove[1] == 'p': 
+            # it's just only for pawn 
+            if not self.isTargetCloseToPawn(Move):
+                # target must not be nearby
+                self.redPieceTurn = not self.redPieceTurn
+        elif Move.piecesMove[-1] == 'n':
+            self.isTargetCloseToKing(Move)
+
         if abs(Move.startRow - Move.endRow) == 2 or abs(Move.startColumn - Move.endColumn) == 2:
             self.removeTarget(Move)
 
@@ -37,7 +45,7 @@ class gameState:
         
         print("(%s, %s) moved to (%s, %s) positions..."%(Move.startRow, Move.startColumn, Move.endRow, Move.endColumn))
 
-    def isTargetNear(self, Move):
+    def isTargetCloseToPawn(self, Move):
         if self.redPieceTurn:
             if Move.startRow + 1 <= 7 and Move.endRow + 1 <= 7:
                 if self.board[Move.startRow + 1][Move.startColumn][0] == 'b' and self.board[Move.endRow + 1][Move.endColumn] != '--':
@@ -53,6 +61,25 @@ class gameState:
                 if self.board[Move.startRow][Move.startColumn + 1][0] == 'r' or self.board[Move.startRow][Move.startColumn - 1][0] == 'r':
                     return True
         return False
+
+    def removeTargetForKing(self, Move):
+        pass
+
+    def isTargetCloseToKing(self, Move):
+        _directions = ((1, 0), (0, 1), (-1, 0), (0, -1))
+        for direction in _directions:
+            for i in range(1, 8):
+                endRow  = Move.startRow + direction[0] * i
+                endColumn =  Move.startColumn + direction[1] * i
+                if 0 <= endRow <= 7 and 0 <= endColumn <= 7:
+                    endPiece = self.board[endRow][endColumn]
+                    if self.redPieceTurn:
+                        if endPiece[0] == 'b':
+                            return True
+                    else:
+                        if endPiece[0] == 'r':
+                           return True 
+        return False        
 
     def removeTarget(self, Move):
         targetRow, targetColumn = (Move.startRow + Move.endRow) // 2, (Move.startColumn + Move.endColumn) // 2     
@@ -104,17 +131,17 @@ class gameState:
                 endColumn = c + direction[1] * i
                 if 0 <= endRow <= 7 and 0 <= endColumn <= 7:
                     endPiece = self.board[endRow][endColumn]
-                    if endPiece == 'rp' and self.redPieceTurn:
-                        moves.append(Move((r, c), (endRow, endColumn), self.board))
-                    elif endPiece == 'bp' and not self.redPieceTurn:
-                        moves.append(Move((r, c), (endRow, endColumn), self.board))
+                    if endPiece == 'rp':
+                        moves.append(Move((r, c), (endRow + 1, endColumn), self.board))
+                    elif endPiece == 'bp':
+                        moves.append(Move((r, c), (endRow + 1, endColumn), self.board))
                     elif endPiece == '--':
                         moves.append(Move((r, c), (endRow, endColumn), self.board))
                     else:
                         break
                 else:
                     break
-          
+
     def checkPossibleMoves(self):
         moves = []
         for r in range(len(self.board)):
