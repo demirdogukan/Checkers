@@ -43,12 +43,12 @@ class Game:
                         _move = Move(self.clicks_of_player[0], self.clicks_of_player[1], self.gameState.board)
                         if _move in self.validMoves:
                             self._makeMove(_move)
-                        print(self.gameState.redPieceTurn)
+                            print(self.gameState.redPieceTurn)
                         self._ClearMoves()
 
             if self.isValidMove:
                self._updateValidMoves()
-            # update board simultanesly
+
             self._Draw()
             self.clock.tick(60)
             py.display.flip()
