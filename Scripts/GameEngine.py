@@ -105,42 +105,19 @@ class gameState:
         self.board[targetRow][targetColumn] = '--'
                     
     def pawn_move(self, r, c, moves):
-        if self.redPieceTurn:
-            if r + 1 <= 7:
-                if self.board[r + 1][c][0] == 'b':
-                    moves.append(Move((r, c), (r + 2, c), self.board))
-                elif self.board[r + 1][c] == '--':
-                    moves.append(Move((r, c), (r + 1, c), self.board))
-                    
-            if c - 1 >= 0:
-                if self.board[r][c - 1][0] == 'b':
-                    moves.append(Move((r, c), (r, c - 2), self.board))
-                elif self.board[r][c - 1] == '--':
-                    moves.append(Move((r, c), (r, c - 1), self.board))
-                
-            if c + 1 <= 7:
-                if self.board[r][c + 1][0] == 'b':
-                    moves.append(Move((r, c), (r, c + 2), self.board))
-                elif self.board[r][c + 1] == '--':
-                    moves.append(Move((r, c), (r, c + 1), self.board))
-        else:
-            if r - 1 >= 0:
-                if self.board[r - 1][c][0] == 'r':
-                    moves.append(Move((r, c), (r - 2, c), self.board))
-                elif self.board[r - 1][c] == '--':
-                    moves.append(Move((r, c), (r - 1, c), self.board))
-
-            if c + 1 <= 7:
-                if self.board[r][c + 1][0] == 'r':
-                    moves.append(Move((r, c), (r, c + 2), self.board))
-                elif self.board[r][c + 1] == '--':
-                    moves.append(Move((r, c), (r, c + 1), self.board))
-
-            if c - 1 >= 0:
-                if self.board[r][c - 1][0] == 'r':
-                    moves.append(Move((r, c), (r, c - 2), self.board))
-                elif self.board[r][c - 1] == '--':
-                    moves.append(Move((r, c), (r, c - 1), self.board))
+        targetPiece = 'b' if self.redPieceTurn else 'r'
+        directions = ((-2, 0), (0, -2), (2, 0), (0, 2),
+                         (1, 0), (0, 1), (-1, 0), (0, -1))
+        
+        for direction in directions:
+                endRow = r + direction[0]
+                endCol = c + direction[1]
+                if 0 <= endRow < 8 and 0 <= endCol < 8:
+                    if self.board[r][c] != targetPiece:
+                        if self.board[endRow][endCol][0] == targetPiece:
+                            moves.append(Move((r, c), (endRow, endCol), self.board))
+                        elif self.board[endRow][endCol] == '--':
+                            moves.append(Move((r, c), (endRow, endCol), self.board))
 
     def king_move(self, r, c, moves):
         _directions = ((1, 0), (0, 1), (-1, 0), (0, -1))
